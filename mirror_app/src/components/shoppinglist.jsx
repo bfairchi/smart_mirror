@@ -1,22 +1,78 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import emailjs from '@emailjs/browser';
+
+const BACKEND_URL = 'http://localhost:3001';
 
 function ShoppingList() {
   const [items, setItems] = useState([]);
   const [currentItem, setCurrentItem] = useState('');
   const [sending, setSending] = useState(false);
   const [showRecipientModal, setShowRecipientModal] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const addItem = (e) => {
-    e.preventDefault();
-    if (currentItem.trim()) {
-      setItems([...items, currentItem.trim()]);
-      setCurrentItem('');
+  // Fetch items from backend on component mount
+  useEffect(() => {
+    fetchItems();
+    // Poll for updates every 10 seconds
+    const interval = setInterval(fetchItems, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Fetch items from backend
+  const fetchItems = async () => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/items`);
+      const data = await response.json();
+      setItems(data.items);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching items:', error);
+      setLoading(false);
     }
   };
 
-  const removeItem = (index) => {
-    setItems(items.filter((_, i) => i !== index));
+  const addItem = async (e) => {
+    e.preventDefault();
+    if (currentItem.trim()) {
+      const newItem = currentItem.trim();
+      
+      // Add to backend
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/items`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ items: [newItem] })
+        });
+        const data = await response.json();
+        setItems(data.items);
+        setCurrentItem('');
+      } catch (error) {
+        console.error('Error adding item:', error);
+        alert('Failed to add item. Please try again.');
+      }
+    }
+  };
+
+  const removeItem = async (index) => {
+    const newItems = items.filter((_, i) => i !== index);
+    setItems(newItems);
+    
+    // Update backend by clearing and re-adding all items
+    try {
+      await fetch(`${BACKEND_URL}/api/items`, {
+        method: 'DELETE'
+      });
+      
+      if (newItems.length > 0) {
+        await fetch(`${BACKEND_URL}/api/items`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ items: newItems })
+        });
+      }
+    } catch (error) {
+      console.error('Error removing item:', error);
+    }
   };
 
   const handleSendClick = () => {
@@ -27,13 +83,9 @@ function ShoppingList() {
     setShowRecipientModal(true);
   };
 
-  const sendList = async (recipientEmail) => {
+  const sendList = async (recipientEmail, recipientName) => {
     setSending(true);
     setShowRecipientModal(false);
-    
-    console.log('Service ID:', import.meta.env.VITE_EMAILJS_SERVICE_ID);
-    console.log('Template ID:', import.meta.env.VITE_EMAILJS_TEMPLATE_ID);
-    console.log('Public Key:', import.meta.env.VITE_EMAILJS_PUBLIC_KEY);
 
     const formattedList = items
       .map((item, index) => `${index + 1}. ${item}`)
@@ -55,6 +107,12 @@ function ShoppingList() {
       );
       
       alert('List sent successfully!');
+      
+      // Clear the list from backend after successful send
+      await fetch(`${BACKEND_URL}/api/items`, {
+        method: 'DELETE'
+      });
+      
       setItems([]);
     } catch (error) {
       console.error('Failed to send email:', error);
@@ -63,6 +121,10 @@ function ShoppingList() {
       setSending(false);
     }
   };
+
+  if (loading) {
+    return <div style={{ padding: '40px', textAlign: 'center' }}>Loading...</div>;
+  }
 
   return (
     <div style={{ 
@@ -142,7 +204,7 @@ function ShoppingList() {
               paddingBottom: '20px',
               borderBottom: '1px solid #ddd'
             }}>
-              Your list is empty. Add items above.
+              Your list is empty. Add items above or send an email!
             </li>
           ) : (
             items.map((item, index) => (
@@ -228,7 +290,7 @@ function ShoppingList() {
             </h2>
             
             <button
-              onClick={() => sendList(import.meta.env.VITE_RECIPIENT_EMAIL_1)}
+              onClick={() => sendList(import.meta.env.VITE_RECIPIENT_EMAIL_1, 'Brian')}
               style={{
                 width: '100%',
                 padding: '15px',
@@ -241,12 +303,11 @@ function ShoppingList() {
                 cursor: 'pointer'
               }}
             >
-              {import.meta.env.VITE_RECIPIENT_EMAIL_1}
-              <h2>Brian</h2>
+              Brian
             </button>
 
             <button
-              onClick={() => sendList(import.meta.env.VITE_RECIPIENT_EMAIL_2)}
+              onClick={() => sendList(import.meta.env.VITE_RECIPIENT_EMAIL_2, 'Barbi')}
               style={{
                 width: '100%',
                 padding: '15px',
@@ -259,8 +320,7 @@ function ShoppingList() {
                 cursor: 'pointer'
               }}
             >
-              {import.meta.env.VITE_RECIPIENT_EMAIL_2}
-              <h2>Barbi</h2>
+              Barbi
             </button>
 
             <button
