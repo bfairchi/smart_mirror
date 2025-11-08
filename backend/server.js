@@ -98,8 +98,11 @@ function checkForNewEmails() {
           ['OR',
             ['SUBJECT', 'add'],
             ['OR',
+                ['SUBJECT', 'shopping'],
+            ['OR',
               ['SUBJECT', 'list'],
               ['SUBJECT', 'new']
+              ] 
             ]
           ]
         ]
@@ -156,9 +159,13 @@ function checkForNewEmails() {
           });
 
           msg.once('attributes', (attrs) => {
-            // Mark email as read
-            imap.addFlags(attrs.uid, ['\\Seen'], (err) => {
-              if (err) console.error('Error marking as read:', err);
+            // Mark email as deleted (moves to trash)
+            imap.addFlags(attrs.uid, ['\\Deleted'], (err) => {
+              if (err) {
+                console.error('Error marking for deletion:', err);
+              } else {
+                console.log('Email marked for deletion');
+              }
             });
           });
         });
@@ -169,7 +176,15 @@ function checkForNewEmails() {
 
         fetch.once('end', () => {
           console.log('Done fetching emails');
-          imap.end();
+          // Expunge deleted emails (permanently remove them)
+          imap.expunge((err) => {
+            if (err) {
+              console.error('Error expunging emails:', err);
+            } else {
+              console.log('Deleted emails permanently removed');
+            }
+            imap.end();
+          });
         });
       });
     });
