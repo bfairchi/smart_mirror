@@ -14,6 +14,7 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 shopping_list.json
+amazon_list.json
 
 # OS files
 .DS_Store

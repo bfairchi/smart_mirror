@@ -13,35 +13,38 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 
-// Path to shopping list log file
-const LIST_FILE = path.join(__dirname, 'shopping_list.json');
+// Path to list files
+const SHOPPING_LIST_FILE = path.join(__dirname, 'shopping_list.json');
+const AMAZON_LIST_FILE = path.join(__dirname, 'amazon_list.json');
 
-// Load shopping list from file
-function loadShoppingList() {
+// Load list from file
+function loadList(filePath) {
   try {
-    if (fs.existsSync(LIST_FILE)) {
-      const data = fs.readFileSync(LIST_FILE, 'utf8');
+    if (fs.existsSync(filePath)) {
+      const data = fs.readFileSync(filePath, 'utf8');
       return JSON.parse(data);
     }
   } catch (err) {
-    console.error('Error loading shopping list:', err);
+    console.error(`Error loading list from ${filePath}:`, err);
   }
   return [];
 }
 
-// Save shopping list to file
-function saveShoppingList(items) {
+// Save list to file
+function saveList(filePath, items) {
   try {
-    fs.writeFileSync(LIST_FILE, JSON.stringify(items, null, 2));
-    console.log('Shopping list saved to file');
+    fs.writeFileSync(filePath, JSON.stringify(items, null, 2));
+    console.log(`List saved to ${filePath}`);
   } catch (err) {
-    console.error('Error saving shopping list:', err);
+    console.error(`Error saving list to ${filePath}:`, err);
   }
 }
 
-// Initialize shopping list from file
-let shoppingList = loadShoppingList();
+// Initialize lists from files
+let shoppingList = loadList(SHOPPING_LIST_FILE);
+let amazonList = loadList(AMAZON_LIST_FILE);
 console.log('Loaded shopping list:', shoppingList);
+console.log('Loaded amazon list:', amazonList);
 
 // IMAP configuration
 const imapConfig = {
@@ -75,9 +78,9 @@ function parseEmailForItems(emailBody) {
   return items;
 }
 
-// Fetch emails from Gmail
-function checkForNewEmails() {
-  console.log('Checking for new emails...');
+// Fetch emails from Gmail for a specific list type
+function checkForNewEmails(listType = 'shopping') {
+  console.log(`Checking for new ${listType} list emails...`);
   
   const imap = new Imap(imapConfig);
 
@@ -89,24 +92,34 @@ function checkForNewEmails() {
         return;
       }
 
-      // Search for unread emails with "shopping list", "add", "list", or "new" in subject
-      // The OR criteria allows any of these keywords
-      imap.search([
-        'UNSEEN',
-        ['OR', 
-          ['SUBJECT', 'shopping list'],
-          ['OR',
-            ['SUBJECT', 'add'],
+      // Build search criteria based on list type
+      let searchCriteria;
+      if (listType === 'amazon') {
+        searchCriteria = [
+          'UNSEEN',
+          ['SUBJECT', 'amazon']
+        ];
+      } else {
+        // Shopping list - search for multiple keywords
+        searchCriteria = [
+          'UNSEEN',
+          ['OR', 
+            ['SUBJECT', 'shopping list'],
             ['OR',
+              ['SUBJECT', 'add'],
+              ['OR',
                 ['SUBJECT', 'shopping'],
-            ['OR',
-              ['SUBJECT', 'list'],
-              ['SUBJECT', 'new']
-              ] 
+                ['OR',
+                  ['SUBJECT', 'list'],
+                  ['SUBJECT', 'new']
+                ] 
+              ]
             ]
           ]
-        ]
-      ], (err, results) => {
+        ];
+      }
+
+      imap.search(searchCriteria, (err, results) => {
         if (err) {
           console.error('Error searching emails:', err);
           imap.end();
@@ -114,12 +127,12 @@ function checkForNewEmails() {
         }
 
         if (!results || results.length === 0) {
-          console.log('No new emails found');
+          console.log(`No new ${listType} emails found`);
           imap.end();
           return;
         }
 
-        console.log(`Found ${results.length} new email(s)`);
+        console.log(`Found ${results.length} new ${listType} email(s)`);
 
         const fetch = imap.fetch(results, { bodies: '' });
 
@@ -140,21 +153,24 @@ function checkForNewEmails() {
 
               console.log('Extracted items:', newItems);
 
-              // Add items to shopping list (avoid duplicates)
+              // Add items to appropriate list (avoid duplicates)
               let itemsAdded = 0;
+              let targetList = listType === 'amazon' ? amazonList : shoppingList;
+              const targetFile = listType === 'amazon' ? AMAZON_LIST_FILE : SHOPPING_LIST_FILE;
+
               newItems.forEach(item => {
-                if (!shoppingList.includes(item)) {
-                  shoppingList.push(item);
+                if (!targetList.includes(item)) {
+                  targetList.push(item);
                   itemsAdded++;
                 }
               });
 
               if (itemsAdded > 0) {
-                saveShoppingList(shoppingList);
-                console.log(`Added ${itemsAdded} new item(s) to shopping list`);
+                saveList(targetFile, targetList);
+                console.log(`Added ${itemsAdded} new item(s) to ${listType} list`);
               }
 
-              console.log('Current shopping list:', shoppingList);
+              console.log(`Current ${listType} list:`, targetList);
             });
           });
 
@@ -201,14 +217,14 @@ function checkForNewEmails() {
   imap.connect();
 }
 
-// API Routes
+// API Routes for Shopping List
 
-// Get all items
+// Get all shopping items
 app.get('/api/items', (req, res) => {
   res.json({ items: shoppingList });
 });
 
-// Add items manually
+// Add shopping items manually
 app.post('/api/items', (req, res) => {
   const { items } = req.body;
   if (Array.isArray(items)) {
@@ -217,22 +233,55 @@ app.post('/api/items', (req, res) => {
         shoppingList.push(item);
       }
     });
-    saveShoppingList(shoppingList);
+    saveList(SHOPPING_LIST_FILE, shoppingList);
   }
   res.json({ items: shoppingList });
 });
 
-// Clear all items (called after sending email successfully)
+// Clear shopping list
 app.delete('/api/items', (req, res) => {
   shoppingList = [];
-  saveShoppingList(shoppingList);
+  saveList(SHOPPING_LIST_FILE, shoppingList);
   console.log('Shopping list cleared and file updated');
+  res.json({ message: 'List cleared', items: [] });
+});
+
+// API Routes for Amazon List
+
+// Get all amazon items
+app.get('/api/amazon-items', (req, res) => {
+  res.json({ items: amazonList });
+});
+
+// Add amazon items manually
+app.post('/api/amazon-items', (req, res) => {
+  const { items } = req.body;
+  if (Array.isArray(items)) {
+    items.forEach(item => {
+      if (!amazonList.includes(item)) {
+        amazonList.push(item);
+      }
+    });
+    saveList(AMAZON_LIST_FILE, amazonList);
+  }
+  res.json({ items: amazonList });
+});
+
+// Clear amazon list
+app.delete('/api/amazon-items', (req, res) => {
+  amazonList = [];
+  saveList(AMAZON_LIST_FILE, amazonList);
+  console.log('Amazon list cleared and file updated');
   res.json({ message: 'List cleared', items: [] });
 });
 
 // Health check
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', itemCount: shoppingList.length });
+  res.json({ 
+    status: 'ok', 
+    shoppingItemCount: shoppingList.length,
+    amazonItemCount: amazonList.length
+  });
 });
 
 // Start server
@@ -240,8 +289,12 @@ app.listen(PORT, () => {
   console.log(`Backend server running on http://localhost:${PORT}`);
   
   // Check for emails immediately on startup
-  checkForNewEmails();
+  checkForNewEmails('shopping');
+  checkForNewEmails('amazon');
   
-  // Poll for new emails every 60 seconds
-  setInterval(checkForNewEmails, 60000);
+  // Poll for new emails every 60 seconds for both lists
+  setInterval(() => {
+    checkForNewEmails('shopping');
+    checkForNewEmails('amazon');
+  }, 60000);
 });
