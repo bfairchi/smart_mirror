@@ -54,15 +54,225 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+/* Hamburger Menu Button */
+.hamburger-menu {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1001;
+  background-color: rgba(255, 255, 255, 0.87);
+  padding: 10px;
+  border-radius: 8px;
+  border: 2px solid #242424;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hamburger-icon {
+  width: 30px;
+  height: 24px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.hamburger-icon span {
+  display: block;
+  height: 3px;
+  width: 100%;
+  background-color: #242424;
+  border-radius: 3px;
+  transition: all 0.3s ease;
+}
+
+.hamburger-icon.open span:nth-child(1) {
+  transform: rotate(45deg) translate(8px, 8px);
+}
+
+.hamburger-icon.open span:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger-icon.open span:nth-child(3) {
+  transform: rotate(-45deg) translate(8px, -8px);
+}
+
+/* Menu Overlay */
+.menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.menu-content {
+  background-color: #242424;
+  padding: 40px;
+  border-radius: 12px;
+  min-width: 300px;
+  max-width: 400px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.menu-content h2 {
+  margin-top: 0;
+  margin-bottom: 30px;
+  color: rgba(255, 255, 255, 0.87);
+  font-size: 1.8em;
+  text-align: center;
+}
+
+.menu-options {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.toggle-option {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  cursor: pointer;
+  padding: 15px;
+  background-color: #1a1a1a;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+.toggle-option:hover {
+  background-color: #2a2a2a;
+}
+
+.toggle-option input[type="checkbox"] {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  accent-color: #646cff;
+}
+
+.toggle-option span {
+  font-size: 1.1em;
+  color: rgba(255, 255, 255, 0.87);
+  font-weight: 500;
+}
+
+.close-menu-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: #646cff;
+  color: white;
+  border: none;
+  font-weight: 600;
+}
+
+.close-menu-btn:hover {
+  background-color: #535bf2;
+  border-color: transparent;
+}
+
+/* Lists Container */
+.lists-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+}
+
+.shoppinglist,
+.amazonlist {
+  width: 100%;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
     background-color: #ffffff;
   }
+  
   a:hover {
     color: #747bff;
   }
+  
   button {
     background-color: #f9f9f9;
+  }
+
+  /* Light mode hamburger menu adjustments */
+  .hamburger-menu {
+    background-color: #213547;
+    border-color: #ffffff;
+  }
+
+  .hamburger-icon span {
+    background-color: #ffffff;
+  }
+
+  .menu-content {
+    background-color: #ffffff;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  .menu-content h2 {
+    color: #213547;
+  }
+
+  .toggle-option {
+    background-color: #f0f0f0;
+  }
+
+  .toggle-option:hover {
+    background-color: #e0e0e0;
+  }
+
+  .toggle-option span {
+    color: #213547;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .hamburger-menu {
+    top: 15px;
+    right: 15px;
+  }
+
+  .menu-content {
+    padding: 30px 20px;
+    min-width: 280px;
+    margin: 20px;
   }
 }

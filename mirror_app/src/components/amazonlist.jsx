@@ -3,7 +3,7 @@ import emailjs from '@emailjs/browser';
 
 const BACKEND_URL = 'http://localhost:3001';
 
-function ShoppingList() {
+function AmazonList() {
   const [items, setItems] = useState([]);
   const [currentItem, setCurrentItem] = useState('');
   const [sending, setSending] = useState(false);
@@ -21,12 +21,12 @@ function ShoppingList() {
   // Fetch items from backend
   const fetchItems = async () => {
     try {
-      const response = await fetch(`${BACKEND_URL}/api/items`);
+      const response = await fetch(`${BACKEND_URL}/api/amazon-items`);
       const data = await response.json();
       setItems(data.items);
       setLoading(false);
     } catch (error) {
-      console.error('Error fetching items:', error);
+      console.error('Error fetching Amazon items:', error);
       setLoading(false);
     }
   };
@@ -38,7 +38,7 @@ function ShoppingList() {
       
       // Add to backend
       try {
-        const response = await fetch(`${BACKEND_URL}/api/items`, {
+        const response = await fetch(`${BACKEND_URL}/api/amazon-items`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ items: [newItem] })
@@ -59,12 +59,12 @@ function ShoppingList() {
     
     // Update backend by clearing and re-adding all items
     try {
-      await fetch(`${BACKEND_URL}/api/items`, {
+      await fetch(`${BACKEND_URL}/api/amazon-items`, {
         method: 'DELETE'
       });
       
       if (newItems.length > 0) {
-        await fetch(`${BACKEND_URL}/api/items`, {
+        await fetch(`${BACKEND_URL}/api/amazon-items`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ items: newItems })
@@ -77,7 +77,7 @@ function ShoppingList() {
 
   const handleSendClick = () => {
     if (items.length === 0) {
-      alert('Your list is empty!');
+      alert('Your Amazon list is empty!');
       return;
     }
     setShowRecipientModal(true);
@@ -106,17 +106,17 @@ function ShoppingList() {
         import.meta.env.VITE_EMAILJS_PUBLIC_KEY
       );
       
-      alert('List sent successfully!');
+      alert('Amazon list sent successfully!');
       
       // Clear the list from backend after successful send
-      await fetch(`${BACKEND_URL}/api/items`, {
+      await fetch(`${BACKEND_URL}/api/amazon-items`, {
         method: 'DELETE'
       });
       
       setItems([]);
     } catch (error) {
       console.error('Failed to send email:', error);
-      alert('Failed to send list. Please try again.');
+      alert('Failed to send Amazon list. Please try again.');
     } finally {
       setSending(false);
     }
@@ -135,10 +135,10 @@ function ShoppingList() {
     }}>
       <h1 style={{ 
         textAlign: 'center', 
-        color: '#4f36e0',
+        color: '#7851a9',
         marginBottom: '30px'
       }}>
-        Shopping List
+        Amazon List
       </h1>
       
       <form onSubmit={addItem} style={{ marginBottom: '30px' }}>
@@ -146,12 +146,12 @@ function ShoppingList() {
           type="text"
           value={currentItem}
           onChange={(e) => setCurrentItem(e.target.value)}
-          placeholder="Add an item..."
+          placeholder="Add an Amazon item..."
           style={{ 
             padding: '12px',
             width: '70%',
             fontSize: '16px',
-            border: '2px solid #333',
+            border: '2px solid #FF9900',
             borderRadius: '4px'
           }}
         />
@@ -161,7 +161,7 @@ function ShoppingList() {
             padding: '12px 20px',
             marginLeft: '10px',
             fontSize: '16px',
-            background: '#333',
+            background: '#FF9900',
             color: 'white',
             border: 'none',
             borderRadius: '4px',
@@ -174,21 +174,22 @@ function ShoppingList() {
 
       {/* Lined Paper Effect */}
       <div style={{
-        background: 'linear-gradient(to bottom, #FFF8DC 0%, #FFFACD 100%)',
+        background: 'linear-gradient(to bottom, #FFFEF0 0%, #FFF9E6 100%)',
         padding: '30px 20px',
         borderRadius: '8px',
         boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
         minHeight: '300px',
-        position: 'relative'
+        position: 'relative',
+        border: '2px solid #FF9900'
       }}>
-        {/* Red margin line */}
+        {/* Orange margin line */}
         <div style={{
           position: 'absolute',
           left: '60px',
           top: '0',
           bottom: '0',
           width: '2px',
-          background: '#ff6b6b'
+          background: '#FF9900'
         }}></div>
 
         <ul style={{ 
@@ -204,7 +205,7 @@ function ShoppingList() {
               paddingBottom: '20px',
               borderBottom: '1px solid #ddd'
             }}>
-              Your list is empty. Add items above or send an email!
+              Your Amazon list is empty. Add items above or send an email with "amazon" in the subject!
             </li>
           ) : (
             items.map((item, index) => (
@@ -218,7 +219,7 @@ function ShoppingList() {
                   justifyContent: 'space-between',
                   alignItems: 'center',
                   fontSize: '18px',
-                  color: '#333'
+                  color: '#232F3E'
                 }}
               >
                 <span style={{ flex: 1 }}>{item}</span>
@@ -227,7 +228,7 @@ function ShoppingList() {
                   style={{ 
                     padding: '6px 12px',
                     cursor: 'pointer',
-                    background: '#ff6b6b',
+                    background: '#FF9900',
                     color: 'white',
                     border: 'none',
                     borderRadius: '4px',
@@ -249,7 +250,7 @@ function ShoppingList() {
           style={{
             marginTop: '20px',
             padding: '15px 30px',
-            background: '#4CAF50',
+            background: '#FF9900',
             color: 'white',
             border: 'none',
             borderRadius: '4px',
@@ -259,7 +260,7 @@ function ShoppingList() {
             fontWeight: 'bold'
           }}
         >
-          {sending ? 'Sending...' : `📧 Send List (${items.length} items)`}
+          {sending ? 'Sending...' : `📦 Send Amazon List (${items.length} items)`}
         </button>
       )}
 
@@ -285,7 +286,7 @@ function ShoppingList() {
             width: '90%',
             boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
           }}>
-            <h2 style={{ marginTop: 0, marginBottom: '20px', color: '#333' }}>
+            <h2 style={{ marginTop: 0, marginBottom: '20px', color: '#232F3E' }}>
               Select Recipient
             </h2>
             
@@ -296,7 +297,7 @@ function ShoppingList() {
                 padding: '15px',
                 marginBottom: '15px',
                 fontSize: '16px',
-                background: '#4CAF50',
+                background: '#FF9900',
                 color: 'white',
                 border: 'none',
                 borderRadius: '4px',
@@ -313,7 +314,7 @@ function ShoppingList() {
                 padding: '15px',
                 marginBottom: '15px',
                 fontSize: '16px',
-                background: '#4CAF50',
+                background: '#FF9900',
                 color: 'white',
                 border: 'none',
                 borderRadius: '4px',
@@ -345,4 +346,4 @@ function ShoppingList() {
   );
 }
 
-export default ShoppingList;
+export default AmazonList;
