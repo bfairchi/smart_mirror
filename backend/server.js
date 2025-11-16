@@ -16,6 +16,7 @@ app.use(express.json());
 // Path to list files
 const SHOPPING_LIST_FILE = path.join(__dirname, 'shopping_list.json');
 const AMAZON_LIST_FILE = path.join(__dirname, 'amazon_list.json');
+const COSTCO_LIST_FILE = path.join(__dirname, 'costco_list.json');
 
 // Load list from file
 function loadList(filePath) {
@@ -43,8 +44,10 @@ function saveList(filePath, items) {
 // Initialize lists from files
 let shoppingList = loadList(SHOPPING_LIST_FILE);
 let amazonList = loadList(AMAZON_LIST_FILE);
+let costcoList = loadList(COSTCO_LIST_FILE);
 console.log('Loaded shopping list:', shoppingList);
 console.log('Loaded amazon list:', amazonList);
+console.log('Loaded costco list:', costcoList);
 
 // IMAP configuration
 const imapConfig = {
@@ -98,6 +101,11 @@ function checkForNewEmails(listType = 'shopping') {
         searchCriteria = [
           'UNSEEN',
           ['SUBJECT', 'amazon']
+        ];
+      } else if (listType === 'costco') {
+        searchCriteria = [
+          'UNSEEN',
+          ['SUBJECT', 'costco']
         ];
       } else {
         // Shopping list - search for multiple keywords
@@ -155,8 +163,18 @@ function checkForNewEmails(listType = 'shopping') {
 
               // Add items to appropriate list (avoid duplicates)
               let itemsAdded = 0;
-              let targetList = listType === 'amazon' ? amazonList : shoppingList;
-              const targetFile = listType === 'amazon' ? AMAZON_LIST_FILE : SHOPPING_LIST_FILE;
+              let targetList, targetFile;
+              
+              if (listType === 'amazon') {
+                targetList = amazonList;
+                targetFile = AMAZON_LIST_FILE;
+              } else if (listType === 'costco') {
+                targetList = costcoList;
+                targetFile = COSTCO_LIST_FILE;
+              } else {
+                targetList = shoppingList;
+                targetFile = SHOPPING_LIST_FILE;
+              }
 
               newItems.forEach(item => {
                 if (!targetList.includes(item)) {
@@ -275,12 +293,42 @@ app.delete('/api/amazon-items', (req, res) => {
   res.json({ message: 'List cleared', items: [] });
 });
 
+// API Routes for Costco List
+
+// Get all costco items
+app.get('/api/costco-items', (req, res) => {
+  res.json({ items: costcoList });
+});
+
+// Add costco items manually
+app.post('/api/costco-items', (req, res) => {
+  const { items } = req.body;
+  if (Array.isArray(items)) {
+    items.forEach(item => {
+      if (!costcoList.includes(item)) {
+        costcoList.push(item);
+      }
+    });
+    saveList(COSTCO_LIST_FILE, costcoList);
+  }
+  res.json({ items: costcoList });
+});
+
+// Clear costco list
+app.delete('/api/costco-items', (req, res) => {
+  costcoList = [];
+  saveList(COSTCO_LIST_FILE, costcoList);
+  console.log('Costco list cleared and file updated');
+  res.json({ message: 'List cleared', items: [] });
+});
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({ 
     status: 'ok', 
     shoppingItemCount: shoppingList.length,
-    amazonItemCount: amazonList.length
+    amazonItemCount: amazonList.length,
+    costcoItemCount: costcoList.length
   });
 });
 
@@ -291,10 +339,12 @@ app.listen(PORT, () => {
   // Check for emails immediately on startup
   checkForNewEmails('shopping');
   checkForNewEmails('amazon');
+  checkForNewEmails('costco');
   
-  // Poll for new emails every 60 seconds for both lists
+  // Poll for new emails every 60 seconds for all lists
   setInterval(() => {
     checkForNewEmails('shopping');
     checkForNewEmails('amazon');
+    checkForNewEmails('costco');
   }, 60000);
 });
