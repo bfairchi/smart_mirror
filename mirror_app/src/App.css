@@ -203,23 +203,24 @@ button:focus-visible {
   border-color: transparent;
 }
 
-/* Lists Container - UPDATED with padding for weather component */
+/* LEFT COLUMN — LISTS */
 .lists-container {
-  width: 100%;
+  flex: 0 0 560px;              /* ~560px fixed column */
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: 20px;
-  padding: 20px;
-  padding-bottom: 160px;
+  padding: 40px 20px 220px 40px; /* bottom padding above weather */
   min-height: 100vh;
   box-sizing: border-box;
 }
 
+/* Lists fill the left column */
 .shoppinglist,
 .amazonlist,
 .costcolist {
-  width: 600px;
+  width: 100%;
+  max-width: 600px;
 }
 
 /* Common List Component Styles */
@@ -599,4 +600,24 @@ button:focus-visible {
   .list-add-btn {
     width: 100%;
   }
+}
+/* Main row: lists on left, calendar on right */
+.main-layout {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: 100%;
+  align-items: flex-start;
+  padding: 20px 20px 0 20px;
+  box-sizing: border-box;
+}
+
+/* Right-hand column that holds the calendar card */
+.calendar-panel {
+  flex: 1;                 /* grows to the right edge */
+  max-width: 960px;        /* wider so days aren't squished */
+  margin-left: 40px;
+  margin-top: 40px;
+  padding-bottom: 220px;   /* space above the fixed weather bar */
+  box-sizing: border-box;
 }
