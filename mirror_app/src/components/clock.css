@@ -1,0 +1,79 @@
+.clock-banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px;
+    z-index: 999;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  }
+  
+  .clock-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+  }
+  
+  .clock-time {
+    font-size: 2.5em;
+    font-weight: bold;
+    color: white;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  }
+  
+  .clock-date {
+    font-size: 1.2em;
+    color: rgba(255, 255, 255, 0.95);
+    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+    font-weight: 500;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Adjust main layout to account for fixed clock */
+  body {
+    padding-top: 120px;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .clock-banner {
+      padding: 15px;
+    }
+  
+    .clock-time {
+      font-size: 2em;
+    }
+  
+    .clock-date {
+      font-size: 1em;
+    }
+  
+    body {
+      padding-top: 100px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .clock-banner {
+      padding: 12px;
+    }
+  
+    .clock-time {
+      font-size: 1.5em;
+      letter-spacing: 1px;
+    }
+  
+    .clock-date {
+      font-size: 0.9em;
+    }
+  
+    body {
+      padding-top: 85px;
+    }
+  }

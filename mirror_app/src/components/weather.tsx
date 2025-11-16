@@ -193,9 +193,9 @@ const Weather = () => {
                 />
                 <div className="hourly-temp">{Math.round(hour.temp)}°F</div>
                 <div className="hourly-details">
-                  <div className="hourly-detail-item">💧 {hour.humidity}%</div>
-                  <div className="hourly-detail-item">🌧️ {Math.round(hour.pop * 100)}%</div>
-                  <div className="hourly-detail-item">༄｡° {Math.round(hour.wind_speed)} mph</div>
+                  <div className="hourly-detail-item">&#128167;	{hour.humidity}%</div>
+                  <div className="hourly-detail-item">&#x1F327; {Math.round(hour.pop * 100)}%</div>
+                  <div className="hourly-detail-item">&#x1F32C; {Math.round(hour.wind_speed)} mph</div>
                 </div>
               </div>
             ))}

@@ -4,6 +4,7 @@ import AmazonList from './components/amazonlist';
 import CostcoList from './components/costcolist';
 import Weather from './components/weather';
 import GoogleCalendar from './components/googlecalendar';
+import Clock from './components/clock';
 import './App.css';
 
 const BACKEND_URL = 'http://localhost:3001';
@@ -55,6 +56,9 @@ function App() {
 
   return (
     <>
+      {/* Clock Banner at top */}
+      <Clock />
+
       {/* Hamburger Menu Button */}
       <button
         className="hamburger-menu"
