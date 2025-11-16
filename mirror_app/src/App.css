@@ -209,8 +209,8 @@ button:focus-visible {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 20px;
-  padding: 40px 20px 220px 40px; /* bottom padding above weather */
+  gap: 1px;
+  padding: 10px 20px 220px 40px; /* bottom padding above weather */
   min-height: 100vh;
   box-sizing: border-box;
 }
@@ -225,7 +225,7 @@ button:focus-visible {
 
 /* Common List Component Styles */
 .list-wrapper {
-  padding: 40px;
+  padding: 10px;
   font-family: 'Courier New', monospace;
   box-sizing: border-box;
   margin: 0;
@@ -233,7 +233,7 @@ button:focus-visible {
 
 .list-title {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 15px;
   font-size: 3.2em;
   line-height: 1.1;
 }
@@ -251,7 +251,7 @@ button:focus-visible {
 }
 
 .list-form {
-  margin-bottom: 30px;
+  margin-bottom: 15px;
   display: flex;
   gap: 10px;
 }
@@ -532,7 +532,7 @@ button:focus-visible {
   }
 
   .menu-content {
-    background-color: #ffffff;
+\    background-color: #ffffff;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   }
 
