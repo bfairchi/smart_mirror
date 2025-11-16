@@ -4,6 +4,7 @@ const Imap = require('imap');
 const { simpleParser } = require('mailparser');
 const fs = require('fs');
 const path = require('path');
+const { google } = require('googleapis');
 require('dotenv').config();
 
 const app = express();
@@ -235,7 +236,9 @@ function checkForNewEmails(listType = 'shopping') {
   imap.connect();
 }
 
-// API Routes for Shopping List
+// =============================================================================
+// API ROUTES - SHOPPING LIST
+// =============================================================================
 
 // Get all shopping items
 app.get('/api/items', (req, res) => {
@@ -264,7 +267,9 @@ app.delete('/api/items', (req, res) => {
   res.json({ message: 'List cleared', items: [] });
 });
 
-// API Routes for Amazon List
+// =============================================================================
+// API ROUTES - AMAZON LIST
+// =============================================================================
 
 // Get all amazon items
 app.get('/api/amazon-items', (req, res) => {
@@ -293,7 +298,9 @@ app.delete('/api/amazon-items', (req, res) => {
   res.json({ message: 'List cleared', items: [] });
 });
 
-// API Routes for Costco List
+// =============================================================================
+// API ROUTES - COSTCO LIST
+// =============================================================================
 
 // Get all costco items
 app.get('/api/costco-items', (req, res) => {
@@ -322,19 +329,116 @@ app.delete('/api/costco-items', (req, res) => {
   res.json({ message: 'List cleared', items: [] });
 });
 
-// Health check
+// =============================================================================
+// API ROUTES - GOOGLE CALENDAR (NEW)
+// =============================================================================
+
+// Get calendar events
+app.post('/api/calendar/events', async (req, res) => {
+  try {
+    const { timeMin, timeMax } = req.body;
+
+    // Validate required environment variables
+    const requiredEnvVars = [
+      'GOOGLE_SERVICE_ACCOUNT_EMAIL',
+      'GOOGLE_PRIVATE_KEY',
+      'GOOGLE_CALENDAR_ID'
+    ];
+
+    const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+    
+    if (missingVars.length > 0) {
+      console.error('Missing environment variables:', missingVars);
+      return res.status(500).json({ 
+        error: 'Server configuration error',
+        details: `Missing environment variables: ${missingVars.join(', ')}`
+      });
+    }
+
+    // Create JWT auth client using service account credentials
+    const auth = new google.auth.JWT({
+      email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+      key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+      scopes: ['https://www.googleapis.com/auth/calendar.readonly'],
+    });
+
+    // Create calendar API client
+    const calendar = google.calendar({ version: 'v3', auth });
+
+    // Fetch events from the specified calendar
+    const response = await calendar.events.list({
+      calendarId: process.env.GOOGLE_CALENDAR_ID,
+      timeMin: timeMin || new Date().toISOString(),
+      timeMax: timeMax || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+      maxResults: 50,
+      singleEvents: true,
+      orderBy: 'startTime',
+    });
+
+    const events = response.data.items || [];
+
+    return res.status(200).json({
+      success: true,
+      events: events,
+      count: events.length
+    });
+
+  } catch (error) {
+    console.error('Error fetching calendar events:', error);
+    
+    // Provide more specific error messages
+    let errorMessage = 'Failed to fetch calendar events';
+    
+    if (error.code === 401) {
+      errorMessage = 'Authentication failed. Please check your service account credentials.';
+    } else if (error.code === 403) {
+      errorMessage = 'Access denied. Ensure the service account has access to the calendar.';
+    } else if (error.code === 404) {
+      errorMessage = 'Calendar not found. Please check the calendar ID.';
+    }
+
+    return res.status(error.code || 500).json({
+      error: errorMessage,
+      details: error.message
+    });
+  }
+});
+
+// =============================================================================
+// HEALTH CHECK
+// =============================================================================
+
 app.get('/health', (req, res) => {
   res.json({ 
     status: 'ok', 
     shoppingItemCount: shoppingList.length,
     amazonItemCount: amazonList.length,
-    costcoItemCount: costcoList.length
+    costcoItemCount: costcoList.length,
+    googleCalendar: {
+      configured: !!(process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL && 
+                     process.env.GOOGLE_PRIVATE_KEY && 
+                     process.env.GOOGLE_CALENDAR_ID)
+    }
   });
 });
 
-// Start server
+// =============================================================================
+// START SERVER
+// =============================================================================
+
 app.listen(PORT, () => {
-  console.log(`Backend server running on http://localhost:${PORT}`);
+  console.log(`🚀 Backend server running on http://localhost:${PORT}`);
+  console.log('\n📧 Email Configuration:');
+  console.log(`   - Gmail User: ${process.env.GMAIL_USER ? '✓' : '✗'}`);
+  console.log(`   - Gmail Password: ${process.env.GMAIL_APP_PASSWORD ? '✓' : '✗'}`);
+  console.log('\n📅 Google Calendar Configuration:');
+  console.log(`   - Service Account Email: ${process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL ? '✓' : '✗'}`);
+  console.log(`   - Private Key: ${process.env.GOOGLE_PRIVATE_KEY ? '✓' : '✗'}`);
+  console.log(`   - Calendar ID: ${process.env.GOOGLE_CALENDAR_ID ? '✓' : '✗'}`);
+  console.log('\n📋 List Counts:');
+  console.log(`   - Shopping: ${shoppingList.length} items`);
+  console.log(`   - Amazon: ${amazonList.length} items`);
+  console.log(`   - Costco: ${costcoList.length} items`);
   
   // Check for emails immediately on startup
   checkForNewEmails('shopping');
