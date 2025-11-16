@@ -208,13 +208,20 @@ button:focus-visible {
   width: 100%;
   display: flex;
   flex-direction: column;
+  align-items: flex-end; /* Align items to the right */
   gap: 20px;
   padding: 20px;
+  padding-bottom: 160px; /* Space for the weather component at bottom */
+  min-height: 100vh;
+  box-sizing: border-box;
 }
 
 .shoppinglist,
-.amazonlist {
+.amazonlist,
+.costcolist {
   width: 100%;
+  max-width: 600px; /* Adjust this value as needed */
+  align-self: flex-end;
 }
 
 @media (prefers-color-scheme: light) {

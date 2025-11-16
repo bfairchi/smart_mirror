@@ -3,7 +3,7 @@ import emailjs from '@emailjs/browser';
 
 const BACKEND_URL = 'http://localhost:3001';
 
-function AmazonList() {
+function CostcoList() {
   const [items, setItems] = useState([]);
   const [currentItem, setCurrentItem] = useState('');
   const [sending, setSending] = useState(false);
@@ -18,12 +18,12 @@ function AmazonList() {
 
   const fetchItems = async () => {
     try {
-      const response = await fetch(`${BACKEND_URL}/api/amazon-items`);
+      const response = await fetch(`${BACKEND_URL}/api/costco-items`);
       const data = await response.json();
       setItems(data.items);
       setLoading(false);
     } catch (error) {
-      console.error('Error fetching Amazon items:', error);
+      console.error('Error fetching Costco items:', error);
       setLoading(false);
     }
   };
@@ -34,7 +34,7 @@ function AmazonList() {
       const newItem = currentItem.trim();
       
       try {
-        const response = await fetch(`${BACKEND_URL}/api/amazon-items`, {
+        const response = await fetch(`${BACKEND_URL}/api/costco-items`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ items: [newItem] })
@@ -54,12 +54,12 @@ function AmazonList() {
     setItems(newItems);
     
     try {
-      await fetch(`${BACKEND_URL}/api/amazon-items`, {
+      await fetch(`${BACKEND_URL}/api/costco-items`, {
         method: 'DELETE'
       });
       
       if (newItems.length > 0) {
-        await fetch(`${BACKEND_URL}/api/amazon-items`, {
+        await fetch(`${BACKEND_URL}/api/costco-items`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ items: newItems })
@@ -72,7 +72,7 @@ function AmazonList() {
 
   const handleSendClick = () => {
     if (items.length === 0) {
-      alert('Your Amazon list is empty!');
+      alert('Your Costco list is empty!');
       return;
     }
     setShowRecipientModal(true);
@@ -101,16 +101,16 @@ function AmazonList() {
         import.meta.env.VITE_EMAILJS_PUBLIC_KEY
       );
       
-      alert('Amazon list sent successfully!');
+      alert('Costco list sent successfully!');
       
-      await fetch(`${BACKEND_URL}/api/amazon-items`, {
+      await fetch(`${BACKEND_URL}/api/costco-items`, {
         method: 'DELETE'
       });
       
       setItems([]);
     } catch (error) {
       console.error('Failed to send email:', error);
-      alert('Failed to send Amazon list. Please try again.');
+      alert('Failed to send Costco list. Please try again.');
     } finally {
       setSending(false);
     }
@@ -122,36 +122,36 @@ function AmazonList() {
 
   return (
     <div className="list-wrapper">
-      <h1 className="list-title amazon">Amazon List</h1>
+      <h1 className="list-title costco">Costco List</h1>
       
       <form onSubmit={addItem} className="list-form">
         <input
           type="text"
           value={currentItem}
           onChange={(e) => setCurrentItem(e.target.value)}
-          placeholder="Add an Amazon item..."
-          className="list-input amazon"
+          placeholder="Add a Costco item..."
+          className="list-input costco"
         />
-        <button type="submit" className="list-add-btn amazon">
+        <button type="submit" className="list-add-btn costco">
           Add
         </button>
       </form>
 
-      <div className="paper-container amazon">
-        <div className="paper-margin-line amazon"></div>
+      <div className="paper-container costco">
+        <div className="paper-margin-line costco"></div>
 
         <ul className="paper-list">
           {items.length === 0 ? (
             <li className="paper-list-item-empty">
-              Your Amazon list is empty. Add items above or send an email with "amazon" in the subject!
+              Your Costco list is empty. Add items above or send an email with "costco" in the subject!
             </li>
           ) : (
             items.map((item, index) => (
-              <li key={index} className="paper-list-item amazon">
+              <li key={index} className="paper-list-item costco">
                 <span>{item}</span>
                 <button 
                   onClick={() => removeItem(index)}
-                  className="remove-btn amazon"
+                  className="remove-btn costco"
                 >
                   Remove
                 </button>
@@ -165,27 +165,27 @@ function AmazonList() {
         <button
           onClick={handleSendClick}
           disabled={sending}
-          className="send-btn amazon"
+          className="send-btn costco"
         >
-          {sending ? 'Sending...' : `📦 Send Amazon List (${items.length} items)`}
+          {sending ? 'Sending...' : `🛒 Send Costco List (${items.length} items)`}
         </button>
       )}
 
       {showRecipientModal && (
         <div className="modal-overlay" onClick={() => setShowRecipientModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h2 className="modal-title amazon">Select Recipient</h2>
+            <h2 className="modal-title costco">Select Recipient</h2>
             
             <button
               onClick={() => sendList(import.meta.env.VITE_RECIPIENT_EMAIL_1, 'Brian')}
-              className="modal-btn amazon"
+              className="modal-btn costco"
             >
               Brian
             </button>
 
             <button
               onClick={() => sendList(import.meta.env.VITE_RECIPIENT_EMAIL_2, 'Barbi')}
-              className="modal-btn amazon"
+              className="modal-btn costco"
             >
               Barbi
             </button>
@@ -203,4 +203,4 @@ function AmazonList() {
   );
 }
 
-export default AmazonList;
+export default CostcoList;

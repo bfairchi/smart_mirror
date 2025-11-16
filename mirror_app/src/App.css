@@ -1,42 +1,602 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+/* Hamburger Menu Button */
+.hamburger-menu {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1001;
+  background-color: rgba(255, 255, 255, 0.87);
+  padding: 10px;
+  border-radius: 8px;
+  border: 2px solid #242424;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hamburger-icon {
+  width: 30px;
+  height: 24px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.hamburger-icon span {
+  display: block;
+  height: 3px;
+  width: 100%;
+  background-color: #242424;
+  border-radius: 3px;
+  transition: all 0.3s ease;
+}
+
+.hamburger-icon.open span:nth-child(1) {
+  transform: rotate(45deg) translate(8px, 8px);
+}
+
+.hamburger-icon.open span:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger-icon.open span:nth-child(3) {
+  transform: rotate(-45deg) translate(8px, -8px);
+}
+
+/* Menu Overlay */
+.menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.menu-content {
+  background-color: #242424;
+  padding: 40px;
+  border-radius: 12px;
+  min-width: 300px;
+  max-width: 400px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.menu-content h2 {
+  margin-top: 0;
+  margin-bottom: 30px;
+  color: rgba(255, 255, 255, 0.87);
+  font-size: 1.8em;
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.menu-options {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 30px;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+.toggle-option {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  cursor: pointer;
+  padding: 15px;
+  background-color: #1a1a1a;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+.toggle-option:hover {
+  background-color: #2a2a2a;
+}
+
+.toggle-option input[type="checkbox"] {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  accent-color: #646cff;
+}
+
+.toggle-option span {
+  font-size: 1.1em;
+  color: rgba(255, 255, 255, 0.87);
+  font-weight: 500;
+}
+
+.close-menu-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: #646cff;
+  color: white;
+  border: none;
+  font-weight: 600;
+}
+
+.close-menu-btn:hover {
+  background-color: #535bf2;
+  border-color: transparent;
+}
+
+/* Lists Container - UPDATED with padding for weather component */
+.lists-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 20px;
+  padding: 20px;
+  padding-bottom: 160px;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+.shoppinglist,
+.amazonlist,
+.costcolist {
+  width: 600px;
+}
+
+/* Common List Component Styles */
+.list-wrapper {
+  padding: 40px;
+  font-family: 'Courier New', monospace;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+.list-title {
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+.list-title.shopping {
+  color: #4f36e0;
+}
+
+.list-title.amazon {
+  color: #7851a9;
+}
+
+.list-title.costco {
+  color: #0063a7;
+}
+
+.list-form {
+  margin-bottom: 30px;
+  display: flex;
+  gap: 10px;
+}
+
+.list-input {
+  padding: 12px;
+  flex: 1;
+  font-size: 16px;
+  border-radius: 4px;
+}
+
+.list-input.shopping {
+  border: 2px solid #333;
+}
+
+.list-input.amazon {
+  border: 2px solid #FF9900;
+}
+
+.list-input.costco {
+  border: 2px solid #e31837;
+}
+
+.list-add-btn {
+  padding: 12px 20px;
+  font-size: 16px;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.list-add-btn.shopping {
+  background: #333;
+}
+
+.list-add-btn.amazon {
+  background: #FF9900;
+}
+
+.list-add-btn.costco {
+  background: #e31837;
+}
+
+/* Lined Paper Effect */
+.paper-container {
+  padding: 30px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  min-height: 300px;
+  max-height: 300px;
+  position: relative;
+  overflow-y: auto;
+}
+
+.paper-container.shopping {
+  background: linear-gradient(to bottom, #FFF8DC 0%, #FFFACD 100%);
+}
+
+.paper-container.amazon {
+  background: linear-gradient(to bottom, #FFFEF0 0%, #FFF9E6 100%);
+  border: 2px solid #FF9900;
+}
+
+.paper-container.costco {
+  background: linear-gradient(to bottom, #FFFEF0 0%, #FFF9E6 100%);
+  border: 2px solid #e31837;
+}
+
+/* Margin line */
+.paper-margin-line {
+  position: absolute;
+  left: 60px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+}
+
+.paper-margin-line.shopping {
+  background: #ff6b6b;
+}
+
+.paper-margin-line.amazon {
+  background: #FF9900;
+}
+
+.paper-margin-line.costco {
+  background: #e31837;
+}
+
+.paper-list {
+  list-style: none;
+  padding: 0;
+  padding-left: 80px;
+  margin: 0;
+}
+
+.paper-list-item-empty {
+  color: #999;
+  font-style: italic;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #ddd;
+}
+
+.paper-list-item {
+  padding-bottom: 15px;
+  padding-top: 15px;
+  border-bottom: 1px solid #ccc;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  fontSize: 18px;
+}
+
+.paper-list-item.shopping {
+  color: #333;
+}
+
+.paper-list-item.amazon {
+  color: #232F3E;
+}
+
+.paper-list-item.costco {
+  color: #0063a7;
+}
+
+.paper-list-item span {
+  flex: 1;
+}
+
+.remove-btn {
+  padding: 6px 12px;
+  cursor: pointer;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.remove-btn.shopping {
+  background: #ff6b6b;
+}
+
+.remove-btn.amazon {
+  background: #FF9900;
+}
+
+.remove-btn.costco {
+  background: #e31837;
+}
+
+/* Send Button */
+.send-btn {
+  margin-top: 20px;
+  padding: 15px 30px;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 18px;
+  width: 100%;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.send-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.send-btn.shopping {
+  background: #4CAF50;
+}
+
+.send-btn.amazon {
+  background: #FF9900;
+}
+
+.send-btn.costco {
+  background: #e31837;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.modal-title {
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+.modal-title.shopping {
+  color: #333;
+}
+
+.modal-title.amazon {
+  color: #232F3E;
+}
+
+.modal-title.costco {
+  color: #0063a7;
+}
+
+.modal-btn {
+  width: 100%;
+  padding: 15px;
+  margin-bottom: 15px;
+  font-size: 16px;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.modal-btn.shopping {
+  background: #4CAF50;
+}
+
+.modal-btn.amazon {
+  background: #FF9900;
+}
+
+.modal-btn.costco {
+  background: #e31837;
+}
+
+.modal-cancel-btn {
+  width: 100%;
+  padding: 12px;
+  font-size: 14px;
+  background: #ccc;
+  color: #333;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
   }
-  to {
-    transform: rotate(360deg);
+  
+  a:hover {
+    color: #747bff;
+  }
+  
+  button {
+    background-color: #f9f9f9;
+  }
+
+  /* Light mode hamburger menu adjustments */
+  .hamburger-menu {
+    background-color: #213547;
+    border-color: #ffffff;
+  }
+
+  .hamburger-icon span {
+    background-color: #ffffff;
+  }
+
+  .menu-content {
+    background-color: #ffffff;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  .menu-content h2 {
+    color: #213547;
+  }
+
+  .toggle-option {
+    background-color: #f0f0f0;
+  }
+
+  .toggle-option:hover {
+    background-color: #e0e0e0;
+  }
+
+  .toggle-option span {
+    color: #213547;
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .hamburger-menu {
+    top: 15px;
+    right: 15px;
+  }
+
+  .menu-content {
+    padding: 30px 20px;
+    min-width: 280px;
+    margin: 20px;
+  }
+
+  .lists-container {
+    padding-bottom: 150px;
+    text-align: center;
+  }
+
+  .shoppinglist,
+  .amazonlist,
+  .costcolist {
+    width: 100%;
+    max-width: 600px;
   }
 }
 
-.card {
-  padding: 2em;
-}
+@media (max-width: 480px) {
+  .lists-container {
+    padding: 15px;
+    padding-bottom: 140px;
+  }
 
-.read-the-docs {
-  color: #888;
+  .list-wrapper {
+    padding: 20px;
+  }
+
+  .list-input {
+    width: 100%;
+  }
+
+  .list-form {
+    flex-direction: column;
+  }
+
+  .list-add-btn {
+    width: 100%;
+  }
 }

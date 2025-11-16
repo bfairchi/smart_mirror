@@ -10,15 +10,12 @@ function ShoppingList() {
   const [showRecipientModal, setShowRecipientModal] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Fetch items from backend on component mount
   useEffect(() => {
     fetchItems();
-    // Poll for updates every 10 seconds
     const interval = setInterval(fetchItems, 10000);
     return () => clearInterval(interval);
   }, []);
 
-  // Fetch items from backend
   const fetchItems = async () => {
     try {
       const response = await fetch(`${BACKEND_URL}/api/items`);
@@ -36,7 +33,6 @@ function ShoppingList() {
     if (currentItem.trim()) {
       const newItem = currentItem.trim();
       
-      // Add to backend
       try {
         const response = await fetch(`${BACKEND_URL}/api/items`, {
           method: 'POST',
@@ -57,7 +53,6 @@ function ShoppingList() {
     const newItems = items.filter((_, i) => i !== index);
     setItems(newItems);
     
-    // Update backend by clearing and re-adding all items
     try {
       await fetch(`${BACKEND_URL}/api/items`, {
         method: 'DELETE'
@@ -108,7 +103,6 @@ function ShoppingList() {
       
       alert('List sent successfully!');
       
-      // Clear the list from backend after successful send
       await fetch(`${BACKEND_URL}/api/items`, {
         method: 'DELETE'
       });
@@ -127,112 +121,37 @@ function ShoppingList() {
   }
 
   return (
-    <div style={{ 
-      padding: '40px', 
-      maxWidth: '600px', 
-      margin: '0 auto',
-      fontFamily: 'Courier New, monospace'
-    }}>
-      <h1 style={{ 
-        textAlign: 'center', 
-        color: '#4f36e0',
-        marginBottom: '30px'
-      }}>
-        Shopping List
-      </h1>
+    <div className="list-wrapper">
+      <h1 className="list-title shopping">Shopping List</h1>
       
-      <form onSubmit={addItem} style={{ marginBottom: '30px' }}>
+      <form onSubmit={addItem} className="list-form">
         <input
           type="text"
           value={currentItem}
           onChange={(e) => setCurrentItem(e.target.value)}
           placeholder="Add an item..."
-          style={{ 
-            padding: '12px',
-            width: '70%',
-            fontSize: '16px',
-            border: '2px solid #333',
-            borderRadius: '4px'
-          }}
+          className="list-input shopping"
         />
-        <button 
-          type="submit" 
-          style={{ 
-            padding: '12px 20px',
-            marginLeft: '10px',
-            fontSize: '16px',
-            background: '#333',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}
-        >
+        <button type="submit" className="list-add-btn shopping">
           Add
         </button>
       </form>
 
-      {/* Lined Paper Effect */}
-      <div style={{
-        background: 'linear-gradient(to bottom, #FFF8DC 0%, #FFFACD 100%)',
-        padding: '30px 20px',
-        borderRadius: '8px',
-        boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-        minHeight: '300px',
-        position: 'relative'
-      }}>
-        {/* Red margin line */}
-        <div style={{
-          position: 'absolute',
-          left: '60px',
-          top: '0',
-          bottom: '0',
-          width: '2px',
-          background: '#ff6b6b'
-        }}></div>
+      <div className="paper-container shopping">
+        <div className="paper-margin-line shopping"></div>
 
-        <ul style={{ 
-          listStyle: 'none', 
-          padding: '0',
-          paddingLeft: '80px',
-          margin: 0
-        }}>
+        <ul className="paper-list">
           {items.length === 0 ? (
-            <li style={{
-              color: '#999',
-              fontStyle: 'italic',
-              paddingBottom: '20px',
-              borderBottom: '1px solid #ddd'
-            }}>
+            <li className="paper-list-item-empty">
               Your list is empty. Add items above or send an email!
             </li>
           ) : (
             items.map((item, index) => (
-              <li 
-                key={index} 
-                style={{ 
-                  paddingBottom: '15px',
-                  paddingTop: '15px',
-                  borderBottom: '1px solid #ccc',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  fontSize: '18px',
-                  color: '#333'
-                }}
-              >
-                <span style={{ flex: 1 }}>{item}</span>
+              <li key={index} className="paper-list-item shopping">
+                <span>{item}</span>
                 <button 
                   onClick={() => removeItem(index)}
-                  style={{ 
-                    padding: '6px 12px',
-                    cursor: 'pointer',
-                    background: '#ff6b6b',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    fontSize: '14px'
-                  }}
+                  className="remove-btn shopping"
                 >
                   Remove
                 </button>
@@ -246,95 +165,34 @@ function ShoppingList() {
         <button
           onClick={handleSendClick}
           disabled={sending}
-          style={{
-            marginTop: '20px',
-            padding: '15px 30px',
-            background: '#4CAF50',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: sending ? 'not-allowed' : 'pointer',
-            fontSize: '18px',
-            width: '100%',
-            fontWeight: 'bold'
-          }}
+          className="send-btn shopping"
         >
           {sending ? 'Sending...' : `📧 Send List (${items.length} items)`}
         </button>
       )}
 
-      {/* Recipient Selection Modal */}
       {showRecipientModal && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0,0,0,0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000
-        }}>
-          <div style={{
-            background: 'white',
-            padding: '30px',
-            borderRadius: '8px',
-            maxWidth: '400px',
-            width: '90%',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
-          }}>
-            <h2 style={{ marginTop: 0, marginBottom: '20px', color: '#333' }}>
-              Select Recipient
-            </h2>
+        <div className="modal-overlay" onClick={() => setShowRecipientModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h2 className="modal-title shopping">Select Recipient</h2>
             
             <button
               onClick={() => sendList(import.meta.env.VITE_RECIPIENT_EMAIL_1, 'Brian')}
-              style={{
-                width: '100%',
-                padding: '15px',
-                marginBottom: '15px',
-                fontSize: '16px',
-                background: '#4CAF50',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
+              className="modal-btn shopping"
             >
               Brian
             </button>
 
             <button
               onClick={() => sendList(import.meta.env.VITE_RECIPIENT_EMAIL_2, 'Barbi')}
-              style={{
-                width: '100%',
-                padding: '15px',
-                marginBottom: '15px',
-                fontSize: '16px',
-                background: '#4CAF50',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
+              className="modal-btn shopping"
             >
               Barbi
             </button>
 
             <button
               onClick={() => setShowRecipientModal(false)}
-              style={{
-                width: '100%',
-                padding: '12px',
-                fontSize: '14px',
-                background: '#ccc',
-                color: '#333',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
+              className="modal-cancel-btn"
             >
               Cancel
             </button>
