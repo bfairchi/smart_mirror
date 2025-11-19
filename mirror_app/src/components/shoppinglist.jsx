@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import emailjs from '@emailjs/browser';
+import VirtualKeyboard from './VirtualKeyboard';
 
 const BACKEND_URL = 'http://localhost:3001';
 
@@ -9,6 +10,7 @@ function ShoppingList() {
   const [sending, setSending] = useState(false);
   const [showRecipientModal, setShowRecipientModal] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showKeyboard, setShowKeyboard] = useState(false);
 
   useEffect(() => {
     fetchItems();
@@ -42,10 +44,22 @@ function ShoppingList() {
         const data = await response.json();
         setItems(data.items);
         setCurrentItem('');
+        setShowKeyboard(false);
       } catch (error) {
         console.error('Error adding item:', error);
         alert('Failed to add item. Please try again.');
       }
+    }
+  };
+
+  const handleKeyboardInput = (text) => {
+    setCurrentItem(text);
+  };
+
+  const handleKeyboardSubmit = () => {
+    if (currentItem.trim()) {
+      const syntheticEvent = { preventDefault: () => {} };
+      addItem(syntheticEvent);
     }
   };
 
@@ -129,8 +143,10 @@ function ShoppingList() {
           type="text"
           value={currentItem}
           onChange={(e) => setCurrentItem(e.target.value)}
+          onFocus={() => setShowKeyboard(true)}
           placeholder="Add an item..."
           className="list-input shopping"
+          readOnly
         />
         <button type="submit" className="list-add-btn shopping">
           Add
@@ -198,6 +214,15 @@ function ShoppingList() {
             </button>
           </div>
         </div>
+      )}
+
+      {showKeyboard && (
+        <VirtualKeyboard
+          value={currentItem}
+          onInput={handleKeyboardInput}
+          onSubmit={handleKeyboardSubmit}
+          onClose={() => setShowKeyboard(false)}
+        />
       )}
     </div>
   );
