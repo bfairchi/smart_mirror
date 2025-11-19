@@ -532,7 +532,7 @@ button:focus-visible {
   }
 
   .menu-content {
-\    background-color: #ffffff;
+    background-color: #ffffff;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   }
 
@@ -584,7 +584,7 @@ button:focus-visible {
     width: 100%;
     max-width: 600px;
   }
-}
+
 
 @media (max-width: 480px) {
   .lists-container {
