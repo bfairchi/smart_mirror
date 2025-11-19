@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import emailjs from '@emailjs/browser';
-import VirtualKeyboard from './VirtualKeyboard';
+import VirtualKeyboard from './virtualkeyboard';
 
 const BACKEND_URL = 'http://localhost:3001';
 
