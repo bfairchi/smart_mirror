@@ -43,6 +43,27 @@ const Weather = () => {
 
   useEffect(() => {
     fetchWeatherData();
+    
+    // Calculate time until next midnight
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+    const timeUntilMidnight = tomorrow.getTime() - now.getTime();
+    
+    // Set timeout to refresh at midnight
+    const midnightTimeout = setTimeout(() => {
+      fetchWeatherData();
+      
+      // Set up daily interval after first midnight refresh
+      const dailyInterval = setInterval(() => {
+        fetchWeatherData();
+      }, 24 * 60 * 60 * 1000); // 24 hours
+      
+      return () => clearInterval(dailyInterval);
+    }, timeUntilMidnight);
+    
+    return () => clearTimeout(midnightTimeout);
   }, []);
 
   const fetchWeatherData = async () => {
