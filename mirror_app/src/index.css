@@ -12,6 +12,66 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+/* Touch Scrolling Fix - Prevents text highlighting on touch and drag */
+
+* {
+  /* Prevent text selection on touch */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  
+  /* Enable touch scrolling */
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+body {
+  /* Smooth scrolling for touch devices */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  
+  /* Prevent pull-to-refresh on mobile/touch devices */
+  overscroll-behavior-y: none;
+}
+
+/* Allow text selection in input fields and editable content */
+input,
+textarea,
+[contenteditable="true"] {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+/* Ensure scrollable containers work properly with touch */
+.shopping-list-container,
+.list-items,
+.scrollable,
+[class*="scroll"] {
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  overscroll-behavior: contain;
+}
+
+/* Prevent text selection during drag operations */
+body.dragging,
+body.dragging * {
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
+}
+
+/* Make buttons and interactive elements still work */
+button,
+a,
+[role="button"],
+[onclick] {
+  touch-action: manipulation;
+  cursor: pointer;
+}
 
 a {
   font-weight: 500;

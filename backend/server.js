@@ -54,7 +54,7 @@ console.log('Loaded costco list:', costcoList);
 const imapConfig = {
   user: process.env.GMAIL_USER,
   password: process.env.GMAIL_APP_PASSWORD,
-  host: process.env.IMAP_HOST,
+  host: process.env.IMAP_HOST, 
   port: process.env.IMAP_PORT,
   tls: true,
   tlsOptions: { rejectUnauthorized: false }
