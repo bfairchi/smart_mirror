@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, MapPin, Users, RefreshCw, AlertCircle } from 'lucide-react';
 import './googlecalendar.css';
+import useTouchScroll from '../hooks/useTouchScroll';
 
 interface CalendarEvent {
   id?: string;
@@ -20,6 +21,7 @@ const GoogleCalendar: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const scrollRef = useTouchScroll<HTMLDivElement>();
 
   // --- Helpers --------------------------------------------------------------
 
@@ -263,7 +265,7 @@ const GoogleCalendar: React.FC = () => {
             </div>
           </div>
         ) : (
-          <div className="calendar-grid">
+          <div className="calendar-grid" ref={scrollRef}>
             {weekDays.map((day) => (
               <div key={day.key} className="calendar-day">
                 <div className="calendar-day-header">

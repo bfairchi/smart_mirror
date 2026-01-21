@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import './weather.css';
+import useTouchScroll from '../hooks/useTouchScroll';
 
 interface WeatherData {
   dt: number;
@@ -36,6 +37,7 @@ const Weather = () => {
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const scrollRef = useTouchScroll<HTMLDivElement>();
 
   const API_KEY = import.meta.env.VITE_WEATHER_API_KEY;
   const ZIP_CODE = import.meta.env.VITE_ZIP_CODE;
@@ -203,7 +205,7 @@ const Weather = () => {
               ✕
             </button>
           </div>
-          <div className="hourly-scroll">
+          <div className="hourly-scroll" ref={scrollRef}>
             {getHourlyDataForDay(forecastData[selectedDay].dt).map((hour, idx) => (
               <div key={idx} className="hourly-item">
                 <div className="hourly-time">{formatHour(hour.dt)}</div>

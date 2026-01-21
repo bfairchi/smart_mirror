@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import emailjs from '@emailjs/browser';
 import VirtualKeyboard from './virtualkeyboard';
+import useTouchScroll from '../hooks/useTouchScroll';
 
 const BACKEND_URL = 'http://localhost:3001';
 
@@ -11,6 +12,7 @@ function ShoppingList() {
   const [showRecipientModal, setShowRecipientModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showKeyboard, setShowKeyboard] = useState(false);
+  const scrollRef = useTouchScroll();
 
   useEffect(() => {
     fetchItems();
@@ -153,7 +155,7 @@ function ShoppingList() {
         </button>
       </form>
 
-      <div className="paper-container shopping">
+      <div className="paper-container shopping" ref={scrollRef}>
         <div className="paper-margin-line shopping"></div>
 
         <ul className="paper-list">
