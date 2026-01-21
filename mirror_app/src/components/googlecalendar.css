@@ -245,6 +245,10 @@
     gap: 8px;
     overflow-y: auto;
     padding-right: 4px;
+    /* Touch scrolling support for RPi touchscreen */
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+    overscroll-behavior: contain;
   }
   
   /* each day column */

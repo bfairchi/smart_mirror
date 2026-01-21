@@ -28,6 +28,9 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  /* Touch scrolling support for RPi touchscreen */
+  touch-action: manipulation;
+  -webkit-overflow-scrolling: touch;
 }
 
 h1 {
@@ -305,6 +308,10 @@ button:focus-visible {
   max-height: 300px;
   position: relative;
   overflow-y: auto;
+  /* Touch scrolling support for RPi touchscreen */
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  overscroll-behavior: contain;
 }
 
 .paper-container.shopping {
@@ -617,6 +624,10 @@ button:focus-visible {
   align-items: flex-start;
   padding: 5px 5px 5px 5px;
   box-sizing: border-box;
+  /* Touch scrolling support for RPi touchscreen */
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y pan-x;
+  overflow-y: auto;
 }
 
 /* Right-hand column that holds the calendar card */
