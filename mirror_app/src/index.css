@@ -13,6 +13,21 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Touch scrolling for html and root */
+html {
+  touch-action: manipulation;
+  -webkit-overflow-scrolling: touch;
+  overflow-y: auto;
+  height: 100%;
+}
+
+#root {
+  width: 100%;
+  min-height: 100%;
+  touch-action: pan-y pan-x;
+  -webkit-overflow-scrolling: touch;
+}
+
 /* Simple touch fix - prevents text selection on touch/drag without breaking scrolling */
 body {
   -webkit-user-select: none;
