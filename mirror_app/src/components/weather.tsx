@@ -98,7 +98,7 @@ const Weather = () => {
       });
       
       // Convert to daily format
-      Array.from(dailyMap.entries()).slice(0, 7).forEach(([date, items]) => {
+      Array.from(dailyMap.entries()).slice(0, 7).forEach(([_date, items]) => {
         const temps = items.map(item => item.main.temp);
         const maxTemp = Math.max(...temps);
         const minTemp = Math.min(...temps);
