@@ -160,7 +160,7 @@ const GoogleCalendar: React.FC = () => {
   const getWeekDays = (eventsByDate: Record<string, CalendarEvent[]>) => {
     const start = getWeekStart(selectedDate);
 
-    const days = [];
+    const days: Array<{ date: Date; key: string; events: CalendarEvent[] }> = [];
     for (let i = 0; i < 7; i++) {
       const date = new Date(start);
       date.setDate(start.getDate() + i);
