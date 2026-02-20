@@ -629,12 +629,17 @@ button:focus-visible {
 
 /* Right-hand column that holds the calendar card */
 .calendar-panel {
-  flex: 1;                 /* grows to the right edge */
-  max-width: 960px;        /* wider so days aren't squished */
+  flex: 1;
+  max-width: 960px;
   margin-left: 40px;
   margin-top: 40px;
-  padding-bottom: 220px;   /* space above the fixed weather bar */
   box-sizing: border-box;
+  /* Stick in place while the lists column scrolls */
+  position: sticky;
+  top: 0;
+  /* Constrain to visible area: viewport minus clock (120px) + weather (220px) + margin-top (40px) */
+  height: calc(100vh - 380px);
+  overflow: hidden;
 }
 /* Add this to your existing ShoppingList.css or component CSS file */
 
