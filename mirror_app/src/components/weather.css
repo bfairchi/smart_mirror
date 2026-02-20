@@ -162,9 +162,7 @@
   overflow-y: auto;
   max-height: 320px;
   padding: 15px;
-  /* Touch scrolling support */
-  -webkit-overflow-scrolling: touch;
-  touch-action: pan-y;
+  touch-action: none;
   overscroll-behavior: contain;
 }
 

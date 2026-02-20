@@ -1,14 +1,22 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useRef } from 'react';
 
 /**
  * Custom hook to enable drag-to-scroll with momentum on elements.
+ * Uses a callback ref so it works on conditionally-rendered elements
+ * (e.g. popups/modals that don't exist at component mount time).
  * Uses the Pointer Events API for Chromium/Wayland compatibility.
  */
 export function useTouchScroll<T extends HTMLElement>() {
-  const ref = useRef<T>(null);
+  // Holds the cleanup function for the currently attached element
+  const cleanupRef = useRef<(() => void) | null>(null);
 
-  useEffect(() => {
-    const element = ref.current;
+  const ref = useCallback((element: T | null) => {
+    // Clean up listeners from the previous element (or on unmount)
+    if (cleanupRef.current) {
+      cleanupRef.current();
+      cleanupRef.current = null;
+    }
+
     if (!element) return;
 
     let startY = 0;
@@ -73,7 +81,6 @@ export function useTouchScroll<T extends HTMLElement>() {
       if (!isDragging) return;
       isDragging = false;
 
-      // Momentum: continue scrolling and decelerate after finger lifts
       const decay = 0.92;
       const minVelocity = 0.05;
 
@@ -102,7 +109,7 @@ export function useTouchScroll<T extends HTMLElement>() {
     element.addEventListener('pointerup', handlePointerUp);
     element.addEventListener('pointercancel', handlePointerUp);
 
-    return () => {
+    cleanupRef.current = () => {
       cancelMomentum();
       element.removeEventListener('pointerdown', handlePointerDown);
       element.removeEventListener('pointermove', handlePointerMove);
