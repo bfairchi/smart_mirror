@@ -5,11 +5,13 @@ import CostcoList from './components/costcolist';
 import Weather from './components/weather';
 import GoogleCalendar from './components/googlecalendar';
 import Clock from './components/clock';
+import useTouchScroll from './hooks/useTouchScroll';
 import './App.css';
 
 const BACKEND_URL = 'http://localhost:3001';
 
 function App() {
+  const mainScrollRef = useTouchScroll<HTMLDivElement>();
   const [menuOpen, setMenuOpen] = useState(false);
   const [showShopping, setShowShopping] = useState(true);
   const [showAmazon, setShowAmazon] = useState(false);
@@ -115,7 +117,7 @@ function App() {
       )}
 
       {/* MAIN ROW: Lists on left, calendar on right */}
-      <div className="main-layout">
+      <div className="main-layout" ref={mainScrollRef}>
         {/* LEFT SIDE — LISTS */}
         <div className="lists-container">
           {shouldShowShopping && (
