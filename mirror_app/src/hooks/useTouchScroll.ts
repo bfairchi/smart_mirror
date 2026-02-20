@@ -24,12 +24,18 @@ export function useTouchScroll<T extends HTMLElement>() {
     let startScrollTop = 0;
     let startScrollLeft = 0;
     let isDragging = false;
+    let isCapturing = false; // true only after scroll intent confirmed
+    let activePointerId: number | null = null;
     let velocityY = 0;
     let velocityX = 0;
     let lastY = 0;
     let lastX = 0;
     let lastTime = 0;
     let rafId: number | null = null;
+
+    // Minimum pixels of movement before we commit to a scroll gesture.
+    // Keeps taps/clicks on child buttons working normally.
+    const SCROLL_THRESHOLD = 8;
 
     const cancelMomentum = () => {
       if (rafId !== null) {
@@ -50,11 +56,26 @@ export function useTouchScroll<T extends HTMLElement>() {
       velocityY = 0;
       velocityX = 0;
       isDragging = true;
-      element.setPointerCapture(e.pointerId);
+      isCapturing = false; // don't capture yet — wait for scroll intent
+      activePointerId = e.pointerId;
     };
 
     const handlePointerMove = (e: PointerEvent) => {
-      if (!isDragging) return;
+      if (!isDragging || e.pointerId !== activePointerId) return;
+
+      const deltaY = startY - e.clientY;
+      const deltaX = startX - e.clientX;
+
+      // Only commit to scroll once the finger has moved past the threshold.
+      // This allows taps/clicks on child elements to fire normally.
+      if (!isCapturing) {
+        if (Math.abs(deltaY) > SCROLL_THRESHOLD || Math.abs(deltaX) > SCROLL_THRESHOLD) {
+          element.setPointerCapture(e.pointerId);
+          isCapturing = true;
+        } else {
+          return;
+        }
+      }
 
       const now = Date.now();
       const dt = now - lastTime;
@@ -65,9 +86,6 @@ export function useTouchScroll<T extends HTMLElement>() {
       lastY = e.clientY;
       lastX = e.clientX;
       lastTime = now;
-
-      const deltaY = startY - e.clientY;
-      const deltaX = startX - e.clientX;
 
       if (element.scrollHeight > element.clientHeight) {
         element.scrollTop = startScrollTop + deltaY;
@@ -80,6 +98,14 @@ export function useTouchScroll<T extends HTMLElement>() {
     const handlePointerUp = () => {
       if (!isDragging) return;
       isDragging = false;
+      activePointerId = null;
+
+      if (!isCapturing) {
+        // Was a tap, not a scroll — no momentum needed
+        isCapturing = false;
+        return;
+      }
+      isCapturing = false;
 
       const decay = 0.92;
       const minVelocity = 0.05;
