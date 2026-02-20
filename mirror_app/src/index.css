@@ -13,6 +13,15 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Hide scrollbars globally — touch/JS handles all scrolling */
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+*::-webkit-scrollbar {
+  display: none;
+}
+
 /* Touch scrolling for html and root */
 html {
   touch-action: manipulation;

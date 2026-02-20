@@ -1,9 +1,8 @@
 import { useEffect, useRef } from 'react';
 
 /**
- * Custom hook to enable drag-to-scroll on elements.
- * Uses the Pointer Events API instead of Touch Events because
- * Chromium on Wayland (RPi) does not reliably fire touchstart/touchmove.
+ * Custom hook to enable drag-to-scroll with momentum on elements.
+ * Uses the Pointer Events API for Chromium/Wayland compatibility.
  */
 export function useTouchScroll<T extends HTMLElement>() {
   const ref = useRef<T>(null);
@@ -17,19 +16,47 @@ export function useTouchScroll<T extends HTMLElement>() {
     let startScrollTop = 0;
     let startScrollLeft = 0;
     let isDragging = false;
+    let velocityY = 0;
+    let velocityX = 0;
+    let lastY = 0;
+    let lastX = 0;
+    let lastTime = 0;
+    let rafId: number | null = null;
+
+    const cancelMomentum = () => {
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+    };
 
     const handlePointerDown = (e: PointerEvent) => {
+      cancelMomentum();
       startY = e.clientY;
       startX = e.clientX;
       startScrollTop = element.scrollTop;
       startScrollLeft = element.scrollLeft;
+      lastY = e.clientY;
+      lastX = e.clientX;
+      lastTime = Date.now();
+      velocityY = 0;
+      velocityX = 0;
       isDragging = true;
-      // Capture so pointermove keeps firing even if pointer leaves the element
       element.setPointerCapture(e.pointerId);
     };
 
     const handlePointerMove = (e: PointerEvent) => {
       if (!isDragging) return;
+
+      const now = Date.now();
+      const dt = now - lastTime;
+      if (dt > 0) {
+        velocityY = (lastY - e.clientY) / dt;
+        velocityX = (lastX - e.clientX) / dt;
+      }
+      lastY = e.clientY;
+      lastX = e.clientX;
+      lastTime = now;
 
       const deltaY = startY - e.clientY;
       const deltaX = startX - e.clientX;
@@ -43,7 +70,31 @@ export function useTouchScroll<T extends HTMLElement>() {
     };
 
     const handlePointerUp = () => {
+      if (!isDragging) return;
       isDragging = false;
+
+      // Momentum: continue scrolling and decelerate after finger lifts
+      const decay = 0.92;
+      const minVelocity = 0.05;
+
+      const momentum = () => {
+        velocityY *= decay;
+        velocityX *= decay;
+
+        if (Math.abs(velocityY) > minVelocity || Math.abs(velocityX) > minVelocity) {
+          if (element.scrollHeight > element.clientHeight) {
+            element.scrollTop += velocityY * 16;
+          }
+          if (element.scrollWidth > element.clientWidth) {
+            element.scrollLeft += velocityX * 16;
+          }
+          rafId = requestAnimationFrame(momentum);
+        } else {
+          rafId = null;
+        }
+      };
+
+      rafId = requestAnimationFrame(momentum);
     };
 
     element.addEventListener('pointerdown', handlePointerDown);
@@ -52,6 +103,7 @@ export function useTouchScroll<T extends HTMLElement>() {
     element.addEventListener('pointercancel', handlePointerUp);
 
     return () => {
+      cancelMomentum();
       element.removeEventListener('pointerdown', handlePointerDown);
       element.removeEventListener('pointermove', handlePointerMove);
       element.removeEventListener('pointerup', handlePointerUp);

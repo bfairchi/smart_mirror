@@ -258,10 +258,12 @@ button:focus-visible {
 }
 
 .list-input {
-  padding: 12px;
+  padding: 16px;
   flex: 1;
-  font-size: 16px;
+  font-size: 20px;
   border-radius: 4px;
+  min-height: 56px;
+  box-sizing: border-box;
 }
 
 .list-input.shopping {
@@ -277,12 +279,13 @@ button:focus-visible {
 }
 
 .list-add-btn {
-  padding: 12px 20px;
-  font-size: 16px;
+  padding: 16px 24px;
+  font-size: 20px;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  min-height: 56px;
 }
 
 .list-add-btn.shopping {
@@ -303,13 +306,7 @@ button:focus-visible {
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
   min-height: 300px;
-  max-height: 300px;
   position: relative;
-  overflow-y: auto;
-  /* Touch scrolling support for RPi touchscreen */
-  -webkit-overflow-scrolling: touch;
-  touch-action: none;
-  overscroll-behavior: contain;
 }
 
 .paper-container.shopping {
@@ -388,12 +385,14 @@ button:focus-visible {
 }
 
 .remove-btn {
-  padding: 6px 12px;
+  padding: 12px 20px;
   cursor: pointer;
   color: white;
   border: none;
   border-radius: 4px;
-  font-size: 14px;
+  font-size: 18px;
+  min-height: 48px;
+  min-width: 90px;
 }
 
 .remove-btn.shopping {
