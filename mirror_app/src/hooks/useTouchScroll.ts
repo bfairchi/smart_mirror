@@ -1,8 +1,9 @@
 import { useEffect, useRef } from 'react';
 
 /**
- * Custom hook to enable touch scrolling on elements
- * Works around Chromium/Wayland touch scrolling issues
+ * Custom hook to enable drag-to-scroll on elements.
+ * Uses the Pointer Events API instead of Touch Events because
+ * Chromium on Wayland (RPi) does not reliably fire touchstart/touchmove.
  */
 export function useTouchScroll<T extends HTMLElement>() {
   const ref = useRef<T>(null);
@@ -15,58 +16,46 @@ export function useTouchScroll<T extends HTMLElement>() {
     let startX = 0;
     let startScrollTop = 0;
     let startScrollLeft = 0;
-    let isScrolling = false;
+    let isDragging = false;
 
-    const handleTouchStart = (e: TouchEvent) => {
-      if (e.touches.length === 1) {
-        startY = e.touches[0].clientY;
-        startX = e.touches[0].clientX;
-        startScrollTop = element.scrollTop;
-        startScrollLeft = element.scrollLeft;
-        isScrolling = true;
-      }
+    const handlePointerDown = (e: PointerEvent) => {
+      startY = e.clientY;
+      startX = e.clientX;
+      startScrollTop = element.scrollTop;
+      startScrollLeft = element.scrollLeft;
+      isDragging = true;
+      // Capture so pointermove keeps firing even if pointer leaves the element
+      element.setPointerCapture(e.pointerId);
     };
 
-    const handleTouchMove = (e: TouchEvent) => {
-      if (!isScrolling || e.touches.length !== 1) return;
+    const handlePointerMove = (e: PointerEvent) => {
+      if (!isDragging) return;
 
-      const currentY = e.touches[0].clientY;
-      const currentX = e.touches[0].clientX;
-      const deltaY = startY - currentY;
-      const deltaX = startX - currentX;
+      const deltaY = startY - e.clientY;
+      const deltaX = startX - e.clientX;
 
-      // Check if element can scroll vertically
-      const canScrollVertically = element.scrollHeight > element.clientHeight;
-      // Check if element can scroll horizontally
-      const canScrollHorizontally = element.scrollWidth > element.clientWidth;
-
-      if (canScrollVertically) {
+      if (element.scrollHeight > element.clientHeight) {
         element.scrollTop = startScrollTop + deltaY;
       }
-
-      if (canScrollHorizontally) {
+      if (element.scrollWidth > element.clientWidth) {
         element.scrollLeft = startScrollLeft + deltaX;
       }
-
-      // Prevent default only if we're actually scrolling this element
-      if ((canScrollVertically && Math.abs(deltaY) > 5) ||
-          (canScrollHorizontally && Math.abs(deltaX) > 5)) {
-        e.preventDefault();
-      }
     };
 
-    const handleTouchEnd = () => {
-      isScrolling = false;
+    const handlePointerUp = () => {
+      isDragging = false;
     };
 
-    element.addEventListener('touchstart', handleTouchStart, { passive: true });
-    element.addEventListener('touchmove', handleTouchMove, { passive: false });
-    element.addEventListener('touchend', handleTouchEnd, { passive: true });
+    element.addEventListener('pointerdown', handlePointerDown);
+    element.addEventListener('pointermove', handlePointerMove);
+    element.addEventListener('pointerup', handlePointerUp);
+    element.addEventListener('pointercancel', handlePointerUp);
 
     return () => {
-      element.removeEventListener('touchstart', handleTouchStart);
-      element.removeEventListener('touchmove', handleTouchMove);
-      element.removeEventListener('touchend', handleTouchEnd);
+      element.removeEventListener('pointerdown', handlePointerDown);
+      element.removeEventListener('pointermove', handlePointerMove);
+      element.removeEventListener('pointerup', handlePointerUp);
+      element.removeEventListener('pointercancel', handlePointerUp);
     };
   }, []);
 

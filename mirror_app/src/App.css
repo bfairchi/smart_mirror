@@ -308,7 +308,7 @@ button:focus-visible {
   overflow-y: auto;
   /* Touch scrolling support for RPi touchscreen */
   -webkit-overflow-scrolling: touch;
-  touch-action: pan-y;
+  touch-action: none;
   overscroll-behavior: contain;
 }
 
@@ -624,7 +624,7 @@ button:focus-visible {
   box-sizing: border-box;
   /* Touch scrolling support for RPi touchscreen */
   -webkit-overflow-scrolling: touch;
-  touch-action: pan-y pan-x;
+  touch-action: none;
   overflow-y: auto;
 }
 
